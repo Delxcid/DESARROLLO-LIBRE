@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "../api/apiBASE";
-import type { LoginPayLoad, LoginResponse } from "../models/user";
+import type { LoginPayLoad, LoginResponse, UserRequest } from "../models/user";
 
 
 
@@ -28,4 +28,31 @@ export async function loginUser(
   }
 
   return response.json()
+}
+
+export async function udpateUserProfile(
+    userId:number,
+    payload:UserRequest,
+    token:string | null
+){
+    console.log("TOKEN", token);
+    const formData = new FormData()
+    formData.append("name",payload.name)
+    formData.append("lastname",payload.lastname)
+    formData.append("phone",payload.phone)
+  const headerToken = token?.startsWith("Bearer ") ? token : `Bearer ${token}`
+    const response = await fetch(`${API_BASE_URL}/users/upload/${userId}`,{
+      method:"PUT",
+      headers:{
+        Authorization:headerToken
+
+      },
+body:formData
+    })
+    if(!response.ok){
+      const errorText = await response.text()
+      throw new Error(errorText || "error al actualizar usuario")
+    }
+    return response.json()
+
 }
