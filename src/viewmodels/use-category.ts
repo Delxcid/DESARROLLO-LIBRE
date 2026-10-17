@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../context/useAuth";
 
-import { createCategory } from "../service/category-service";
-import type { CategoryPayload } from "../models/category";
+import { createCategory, getAllCategories } from "../service/category-service";
+import type { CategoryPayload, CategoryResponse } from "../models/category";
 
 export function useCategoryViewModel(onSuccessCallback?: ()=>void){
     const {token}=useAuth()
@@ -15,6 +15,9 @@ export function useCategoryViewModel(onSuccessCallback?: ()=>void){
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState("")
     const [success, setSuccess] = useState("")
+
+    const [categories, setCategories] = useState<CategoryResponse[]>([])
+
 
     const handleChange=(field:keyof CategoryPayload,value:string)=>{
         setForm((prev)=>({...prev,[field]:value}))
@@ -50,12 +53,35 @@ try {
         }
     }
 
+const fetchCategories= useCallback(async()=>{
+    if(!token) return
+    try {
+        setIsLoading(true)
+        setError("")
+        const data = await getAllCategories(token)
+        setCategories(data)
+
+    } catch (error) {
+        setError(
+            error instanceof Error ? error.message : "Error al cargar la data"
+        )
+    }finally{
+        setIsLoading(false)
+    }
+},[token])
+
+   useEffect(()=>{
+    fetchCategories()
+   }, [fetchCategories]) 
+
     return{
         form,
         handleChange,
         submit,
         isLoading,
         error,
-        success
+        success,
+        categories,
+        fetchCategories:fetchCategories
     }
 }

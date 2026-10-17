@@ -1,23 +1,28 @@
 import type React from "react";
 import { useState } from "react";
+import { useProductViewModel } from "../viewmodels/use-product";
 
 interface ProductFormProps {
   onCancel: () => void;
   onSuccess: () => void;
 }
 
-const availablesCategories = ["Fast Food", "Healthy"];
+
 
 export const ProductForm: React.FC<ProductFormProps> = ({
-  onCancel,
-  onSuccess,
-}) => {
-  const [category, setCategory] = useState();
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Producto creado");
-    if (onSuccess) onSuccess();
-  };
+ onCancel,
+ onSuccess,}) => {
+
+  const {
+    form,
+    handleChange,
+    submit,
+    isLoading,
+    categories,
+    isLoadingCategoies,
+  
+}=useProductViewModel()
+ 
   return (
     <div className="max-w-4xl rounded-2xl border border-slate-200 bg-white shadow-sm over">
       <div className="border-b border-slate-100 p-6">
@@ -29,7 +34,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           catalogo
         </p>
       </div>
-      <form onSubmit={handleSubmit} className="p-6 space-y-6">
+      <form onSubmit={submit} className="p-6 space-y-6">
         <div>
           <label
             htmlFor=""
@@ -39,7 +44,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           </label>
           <input
             type="text"
+            value={form.name}
             required
+            onChange={(e) => handleChange("name", e.target.value)}
             placeholder="Ej. Pizza Artesanal"
             className="w-full rounded-lg border border-slate-200 py-3 px-4 text-xs placeholder:-slate-400 focus:border-indigo-600 focus:outline-none"
           />
@@ -53,14 +60,19 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           </label>
           <select
             required
-            value={category}
+            value={form.categoryId}
+            onChange={(e) => handleChange("categoryId", e.target.value)}
             className="w-full rounded-lg border border-slate-200 py-3 px-4 text-xs text-slate-700 focus:border-indigo-600 focus:outline-none"
           >
-            {availablesCategories.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
+            <option value="">
+    {isLoadingCategoies ? "Cargando categorias": "Selecciona la categoria"}
+</option>
+{categories.map((cat)=>(
+    <option key={cat.id} value={cat.id}>
+        {cat.name}
+    </option>
+))}
+
           </select>
         </div>
         <div>
@@ -73,6 +85,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           <input
             type="text"
             required
+            value={form.sku}
+            onChange={(e) => handleChange("sku", e.target.value)}
             placeholder="Ej. 1234567890123"
             className="w-full rounded-lg border border-slate-200 py-3 px-4 text-xs placeholder:-slate-400 focus:border-indigo-600 focus:outline-none"
           />
@@ -89,6 +103,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           </label>
           <textarea
             required
+            value={form.description}
+            onChange={(e) => handleChange("description", e.target.value)}
             placeholder="describe la preparacion, y notas de preparacion"
             className="w-full h-32 rounded-lg border border-slate-200 py-3 px-4 text-xs placeholder:-slate-400 focus:border-indigo-600 focus:outline-none"
           />
@@ -109,6 +125,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               </span>
               <input
                 type="text"
+                value={form.regularPrice}
+                onChange={(e) => handleChange("regularPrice", e.target.value)}
                 step="0.01"
                 min="0"
                 required
@@ -127,6 +145,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               </span>
               <input
                 type="text"
+                value={form.offerPrice}
+                onChange={(e) => handleChange("offerPrice", e.target.value)}
                 step="0.01"
                 min="0"
                 required
@@ -145,6 +165,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               </span>
               <input
                 type="text"
+                value={form.initialStock}
+                onChange={(e) => handleChange("initialStock", e.target.value)}
                 step="0.01"
                 min="0"
                 required
@@ -163,6 +185,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               </span>
               <input
                 type="text"
+                value={form.minStockAlert}
+                onChange={(e) => handleChange("minStockAlert", e.target.value)}
                 step="0.01"
                 min="0"
                 required
@@ -183,7 +207,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           Cancelar
         </button>
         <button className="rounded-lg bg-indigo-600 hover:bg-slate-200 px-5 py-2 text-xs font-semibold text-white">
-          Crear Producto
+          {isLoading ? "Creando..." : "Crear producto"}
         </button>
       </form>
     </div>

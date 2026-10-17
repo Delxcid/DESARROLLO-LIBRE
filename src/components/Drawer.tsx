@@ -1,28 +1,14 @@
-import {
-  Cake,
-  Coffee,
-  FolderPlus,
-  LayoutGrid,
-  PackagePlus,
-  Pizza,
-  Salad,
-} from "lucide-react";
+import { FolderPlus, PackagePlus } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { useCategoryViewModel } from "../viewmodels/use-category";
 
 interface DrawerProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const menuItems = [
-  { label: "All categorias", icon: LayoutGrid },
-  { label: "Fast Food", icon: Pizza },
-  { label: "Healty", icon: Salad },
-  { label: "Desserts", icon: Cake },
-  { label: "Beverages", icon: Coffee },
-];
-
 export const Drawer: React.FC<DrawerProps> = ({ isOpen, onClose }) => {
+  const { categories, isLoading } = useCategoryViewModel();
   return (
     <>
       {isOpen && (
@@ -72,7 +58,7 @@ export const Drawer: React.FC<DrawerProps> = ({ isOpen, onClose }) => {
               <FolderPlus size={18} />
               Crear Categoria
             </NavLink>
-                <NavLink
+            <NavLink
               to="/products/create"
               onClick={onClose}
               className={({ isActive }) =>
@@ -86,31 +72,34 @@ export const Drawer: React.FC<DrawerProps> = ({ isOpen, onClose }) => {
               <PackagePlus size={18} />
               Crear Producto
             </NavLink>
-
           </div>
           <p className="mb-3 text-xs font-bold uppercase text-slate-400">
             Filters
           </p>
           <ul className="list-none space-y-2 pl-0">
-            {menuItems.map((item, index) => {
-              const Icon = item.icon;
-              return (
-                <li key={item.label}>
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors hover:bg-slate-100 ${
-                      index === 0
-                        ? "bg-cyan-100 font-semibold text-cyan-700"
-                        : "text-slate-600"
-                    }`}
-                  >
-                    <Icon size={18} />
-                    {item.label}
-                  </button>
-                </li>
-              );
-            })}
+            {isLoading ? (
+              <li className="text-sm text-slate-500">Cargando categorias...</li>
+            ) : (
+              categories.map((item, index) => {
+              
+                return (
+                  <li key={item.id}>
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors hover:bg-slate-100 ${
+                        index === 0
+                          ? "bg-cyan-100 font-semibold text-cyan-700"
+                          : "text-slate-600"
+                      }`}
+                    >
+        
+                      {item.name}
+                    </button>
+                  </li>
+                );
+              })
+            )}
           </ul>
         </nav>
       </aside>
